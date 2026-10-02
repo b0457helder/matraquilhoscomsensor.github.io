@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Matraquilhos Arduino</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #243b55, #141e30 70%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        header p {
+            margin-top: 10px;
+            color: #aeb9c8;
+        }
+
+        .scoreboard {
+            background: rgba(10, 15, 25, 0.9);
+            border: 2px solid #34495e;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+        }
+
+        .teams {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .team {
+            text-align: center;
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        .team-blue {
+            background: linear-gradient(145deg, #0066ff, #003b99);
+        }
+
+        .team-red {
+            background: linear-gradient(145deg, #ff3b3b, #a50000);
+        }
+
+        .team h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .score {
+            font-family: "Courier New", monospace;
+            font-size: 7rem;
+            font-weight: bold;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        .vs {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #778899;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 14px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        .blue-btn {
+            background: #0066ff;
+            color: white;
+        }
+
+        .red-btn {
+            background: #ff3333;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #34495e;
+            color: white;
+        }
+
+        .arduino {
+            margin-top: 25px;
+            padding: 20px;
+            background: #101720;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .connection {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #bfc9d4;
+        }
+
+        .status {
+            width: 13px;
+            height: 13px;
+            background: #2ecc71;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #2ecc71;
+        }
+
+        .arduino button {
+            background: #00979d;
+            color: white;
+        }
+
+        .info {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .info-card span {
+            display: block;
+            color: #8fa1b5;
+            font-size: 0.85rem;
+            margin-bottom: 7px;
+        }
+
+        .info-card strong {
+            font-size: 1.3rem;
+        }
+
+        footer {
+            text-align: center;
+            color: #657587;
+            margin-top: 25px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 700px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .teams {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .vs {
+                display: none;
+            }
+
+            .score {
+                font-size: 5rem;
+            }
+
+            .info {
+                grid-template-columns: 1fr;
+            }
+
+            .arduino {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header>
+            <h1>⚽ Matraquilhos</h1>
+            <p>Placar eletrónico com Arduino</p>
+        </header>
+
+        <section class="scoreboard">
+
+            <div class="teams">
+
+                <div class="team team-blue">
+                    <h2>Equipa Azul</h2>
+                    <div class="score" id="scoreBlue">0</div>
+                </div>
+
+                <div class="vs">VS</div>
+
+                <div class="team team-red">
+                    <h2>Equipa Vermelha</h2>
+                    <div class="score" id="scoreRed">0</div>
+                </div>
+
+            </div>
+
+            <div class="controls">
+                <button class="blue-btn" onclick="addGoal('blue')">
+                    + Golo Azul
+                </button>
+
+                <button class="red-btn" onclick="addGoal('red')">
+                    + Golo Vermelho
+                </button>
+
+                <button class="reset-btn" onclick="resetGame()">
+                    ↻ Reiniciar
+                </button>
+            </div>
+
+            <div class="arduino">
+
+                <div class="connection">
+                    <div class="status" id="statusLight"></div>
+                    <span id="connectionText">
+                        Arduino ligado
+                    </span>
+                </div>
+
+                <button onclick="toggleConnection()">
+                    Simular ligação
+                </button>
+
+            </div>
+
+            <div class="info">
+
+                <div class="info-card">
+                    <span>Estado</span>
+                    <strong id="gameStatus">Em jogo</strong>
+                </div>
+
+                <div class="info-card">
+                    <span>Total de golos</span>
+                    <strong id="totalGoals">0</strong>
+                </div>
+
+                <div class="info-card">
+                    <span>Último golo</span>
+                    <strong id="lastGoal">—</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+        <footer>
+            Projeto de Matraquilhos • Arduino + HTML
+        </footer>
+
+    </main>
+
+
+    <script>
+
+        let scoreBlue = 0;
+        let scoreRed = 0;
+        let connected = true;
+
+        const scoreBlueElement =
+            document.getElementById("scoreBlue");
+
+        const scoreRedElement =
+            document.getElementById("scoreRed");
+
+        const totalGoalsElement =
+            document.getElementById("totalGoals");
+
+        const lastGoalElement =
+            document.getElementById("lastGoal");
+
+        const gameStatusElement =
+            document.getElementById("gameStatus");
+
+        function addGoal(team) {
+
+            if (team === "blue") {
+                scoreBlue++;
+                scoreBlueElement.textContent = scoreBlue;
+                lastGoalElement.textContent = "Azul";
+            }
+
+            if (team === "red") {
+                scoreRed++;
+                scoreRedElement.textContent = scoreRed;
+                lastGoalElement.textContent = "Vermelho";
+            }
+
+            updateGame();
+
+            /*
+             * Aqui poderás futuramente enviar o resultado
+             * para o Arduino através de Serial, Web Serial,
+             * Bluetooth ou Wi-Fi.
+             */
+        }
+
+        function resetGame() {
+
+            scoreBlue = 0;
+            scoreRed = 0;
+
+            scoreBlueElement.textContent = "0";
+            scoreRedElement.textContent = "0";
+
+            totalGoalsElement.textContent = "0";
+            lastGoalElement.textContent = "—";
+            gameStatusElement.textContent = "Em jogo";
+        }
+
+        function updateGame() {
+
+            const total = scoreBlue + scoreRed;
+
+            totalGoalsElement.textContent = total;
+
+            if (scoreBlue >= 10 || scoreRed >= 10) {
+
+                gameStatusElement.textContent = "Fim de jogo";
+
+            } else {
+
+                gameStatusElement.textContent = "Em jogo";
+            }
+        }
+
+        function toggleConnection() {
+
+            connected = !connected;
+
+            const statusLight =
+                document.getElementById("statusLight");
+
+            const connectionText =
+                document.getElementById("connectionText");
+
+            if (connected) {
+
+                statusLight.style.background = "#2ecc71";
+                statusLight.style.boxShadow =
+                    "0 0 12px #2ecc71";
+
+                connectionText.textContent =
+                    "Arduino ligado";
+
+            } else {
+
+                statusLight.style.background = "#e74c3c";
+                statusLight.style.boxShadow =
+                    "0 0 12px #e74c3c";
+
+                connectionText.textContent =
+                    "Arduino desligado";
+            }
+        }
+
+    </script>
+
+</body>
+</html>
